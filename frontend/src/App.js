@@ -3,6 +3,11 @@ import axios from 'axios';
 import Spline from '@splinetool/react-spline';
 
 function App() {
+  // API base URL - use production URL unless we're on localhost
+  const API_BASE_URL = window.location.hostname === 'localhost' 
+    ? 'http://localhost:5001' 
+    : 'https://taste-core-music.onrender.com';
+
   // State for all parameters
   const [parameters, setParameters] = useState({
     fresnel: 50,
@@ -37,7 +42,7 @@ function App() {
   // Fetch values from server
   const fetchValues = async () => {
     try {
-      const response = await axios.get('http://localhost:5001/spline/values');
+      const response = await axios.get(`${API_BASE_URL}/spline/values`);
       setParameters({
         fresnel: response.data.fresnel,
         depthDarkTop: response.data.depthDarkTop,
@@ -70,10 +75,10 @@ function App() {
     
     try {
       // Update all parameters with one request
-      await axios.put('http://localhost:5001/spline/update', parameters);
+      await axios.put(`${API_BASE_URL}/spline/update`, parameters);
       
       // Get updated values (includes calculated sphere values)
-      const response = await axios.get('http://localhost:5001/spline/values');
+      const response = await axios.get(`${API_BASE_URL}/spline/values`);
       setServerResponse(response.data);
       console.log("Updated values:", response.data);
       
@@ -94,13 +99,13 @@ function App() {
     
     try {
       // First get the current speed value to ensure we're testing against the latest value
-      const speedResponse = await axios.get('http://localhost:5001/spline/speed');
+      const speedResponse = await axios.get(`${API_BASE_URL}/spline/speed`);
       console.log("Current speed value:", speedResponse.data.speedValue);
       
       // Test each endpoint
       for (const endpoint of endpoints) {
         try {
-          const response = await axios.get(`http://localhost:5001/spline/${endpoint}`);
+          const response = await axios.get(`${API_BASE_URL}/spline/${endpoint}`);
           statuses[endpoint] = response.data.success;
         } catch (error) {
           console.log(`${endpoint} endpoint failed:`, error.response?.data || error.message);

@@ -4,7 +4,11 @@ const app = express();
 const port = process.env.PORT || 5001;
 
 // Enable CORS and JSON parsing
-app.use(cors());
+app.use(cors({
+  origin: '*', // Allow all origins
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization']
+}));
 app.use(express.json());
 
 // In-memory "database" for MVP. In production, use a real database.
