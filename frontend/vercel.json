@@ -1,6 +1,5 @@
 {
   "version": 2,
-  "buildCommand": "pnpm install && pnpm build",
-  "installCommand": "npm install -g pnpm",
+  "buildCommand": "npm install && npm run build",
   "outputDirectory": "build"
 }
