@@ -43,7 +43,10 @@ importers:
     dependencies:
       '@splinetool/react-spline':
         specifier: ^4.0.0
-        version: 4.0.0(@splinetool/runtime@1.9.85)(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
+        version: 4.0.0(@splinetool/runtime@0.9.526)(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
+      '@splinetool/runtime':
+        specifier: ^0.9.0
+        version: 0.9.526
       '@testing-library/dom':
         specifier: ^10.4.0
         version: 10.4.0
@@ -1120,8 +1123,8 @@ packages:
       next:
         optional: true
 
-  '@splinetool/runtime@1.9.85':
-    resolution: {integrity: sha512-10RlTnq1EytyOx7MnFIp4VK47cYU2DYhhMgEKUoj/lIKKq/3vEbdzpVSeXhQRwLu9OF23mw11yOJ8HMYnJGGcw==}
+  '@splinetool/runtime@0.9.526':
+    resolution: {integrity: sha512-qznHbXA5aKwDbCgESAothCNm1IeEZcmNWG145p5aXj4w5uoqR1TZ9qkTHTKLTsUbHeitCwdhzmRqan1kxboLgQ==}
 
   '@supabase/auth-js@2.69.1':
     resolution: {integrity: sha512-FILtt5WjCNzmReeRLq5wRs3iShwmnWgBvxHfqapC/VoljJl+W8hDAyFmf1NVw3zH+ZjZ05AKxiKxVeb0HNWRMQ==}
@@ -7047,9 +7050,9 @@ snapshots:
     dependencies:
       '@sinonjs/commons': 1.8.6
 
-  '@splinetool/react-spline@4.0.0(@splinetool/runtime@1.9.85)(react-dom@19.1.0(react@19.1.0))(react@19.1.0)':
+  '@splinetool/react-spline@4.0.0(@splinetool/runtime@0.9.526)(react-dom@19.1.0(react@19.1.0))(react@19.1.0)':
     dependencies:
-      '@splinetool/runtime': 1.9.85
+      '@splinetool/runtime': 0.9.526
       blurhash: 2.0.5
       lodash.debounce: 4.0.8
       react: 19.1.0
@@ -7057,7 +7060,7 @@ snapshots:
       react-merge-refs: 2.1.1
       thumbhash: 0.1.1
 
-  '@splinetool/runtime@1.9.85':
+  '@splinetool/runtime@0.9.526':
     dependencies:
       on-change: 4.0.2
       semver-compare: 1.0.0
