@@ -319,11 +319,14 @@ function App() {
       }));
     }
 
-    // If average key changes, trigger a recalculation
+    // If average key changes, trigger a recalculation with a delay
     if (key === 'averageKey') {
-      // Create a synthetic event for handleSubmit
-      const syntheticEvent = { preventDefault: () => {} };
-      handleSubmit(syntheticEvent);
+      // Add a small delay to ensure previous state updates are complete
+      setTimeout(() => {
+        // Create a synthetic event for handleSubmit
+        const syntheticEvent = { preventDefault: () => {} };
+        handleSubmit(syntheticEvent);
+      }, 100); // 100ms delay
     }
   };
 
