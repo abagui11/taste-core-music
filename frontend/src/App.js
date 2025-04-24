@@ -269,6 +269,7 @@ function App() {
 
   // Update music parameters when slider changes
   const handleMusicParamChange = (key, value) => {
+    // Update musicParams state immediately for UI responsiveness
     setMusicParams(prev => ({
       ...prev,
       [key]: value
@@ -319,14 +320,22 @@ function App() {
       }));
     }
 
-    // If average key changes, trigger a recalculation with a delay
+    // If average key changes, handle it specially
     if (key === 'averageKey') {
-      // Add a small delay to ensure previous state updates are complete
+      // First, update the UI immediately
+      const newRGB = calculateRGB();
+      setParameters(prev => ({
+        ...prev,
+        red: newRGB.red,
+        green: newRGB.green,
+        blue: newRGB.blue
+      }));
+
+      // Then, after a short delay, update the server
       setTimeout(() => {
-        // Create a synthetic event for handleSubmit
         const syntheticEvent = { preventDefault: () => {} };
         handleSubmit(syntheticEvent);
-      }, 100); // 100ms delay
+      }, 300); // Increased delay to 300ms
     }
   };
 
@@ -334,9 +343,13 @@ function App() {
   const calculateRGB = () => {
     const { valence, averageKey, popularity } = musicParams;
     
+    // Ensure values are within bounds
+    const boundedValence = Math.max(0, Math.min(100, valence));
+    const boundedPopularity = Math.max(0, Math.min(100, popularity));
+    
     // Calculate total RGB sum based on inverse valence (0-300)
     // Higher valence means lower RGB values
-    const totalRGB = ((100 - valence) / 100) * 300;
+    const totalRGB = ((100 - boundedValence) / 100) * 300;
     
     // Base color distribution based on key
     const keyColors = {
@@ -354,50 +367,57 @@ function App() {
       'G#': { r: 0, g: 0, b: 100 }
     };
 
-    // Get base color for the key
-    const baseColor = keyColors[averageKey];
+    // Get base color for the key, default to C if key is invalid
+    const baseColor = keyColors[averageKey] || keyColors['C'];
     
     // Calculate popularity factor (0-1)
-    const popularityFactor = popularity / 100;
+    const popularityFactor = boundedPopularity / 100;
     
     // Calculate RGB values
     let r, g, b;
     
-    if (popularityFactor === 1) {
-      // If popularity is 100, all RGB values are equal
-      const equalValue = totalRGB / 3;
-      r = g = b = equalValue;
-    } else {
-      // Calculate base RGB values based on key color
-      const baseSum = baseColor.r + baseColor.g + baseColor.b;
-      const scaleFactor = totalRGB / baseSum;
+    try {
+      if (popularityFactor === 1) {
+        // If popularity is 100, all RGB values are equal
+        const equalValue = totalRGB / 3;
+        r = g = b = equalValue;
+      } else {
+        // Calculate base RGB values based on key color
+        const baseSum = baseColor.r + baseColor.g + baseColor.b;
+        const scaleFactor = totalRGB / baseSum;
+        
+        r = baseColor.r * scaleFactor;
+        g = baseColor.g * scaleFactor;
+        b = baseColor.b * scaleFactor;
+        
+        // Adjust spacing based on popularity
+        const spacingFactor = 1 - popularityFactor;
+        const maxDeviation = totalRGB * 0.3 * spacingFactor; // Maximum deviation from base values
+        
+        // Apply random deviation within maxDeviation
+        r += (Math.random() * 2 - 1) * maxDeviation;
+        g += (Math.random() * 2 - 1) * maxDeviation;
+        b += (Math.random() * 2 - 1) * maxDeviation;
+        
+        // Ensure values stay within bounds and maintain total
+        const currentSum = r + g + b;
+        const correctionFactor = totalRGB / currentSum;
+        r *= correctionFactor;
+        g *= correctionFactor;
+        b *= correctionFactor;
+      }
       
-      r = baseColor.r * scaleFactor;
-      g = baseColor.g * scaleFactor;
-      b = baseColor.b * scaleFactor;
+      // Ensure final values are within bounds
+      r = Math.max(0, Math.min(100, Math.round(r)));
+      g = Math.max(0, Math.min(100, Math.round(g)));
+      b = Math.max(0, Math.min(100, Math.round(b)));
       
-      // Adjust spacing based on popularity
-      const spacingFactor = 1 - popularityFactor;
-      const maxDeviation = totalRGB * 0.3 * spacingFactor; // Maximum deviation from base values
-      
-      // Apply random deviation within maxDeviation
-      r += (Math.random() * 2 - 1) * maxDeviation;
-      g += (Math.random() * 2 - 1) * maxDeviation;
-      b += (Math.random() * 2 - 1) * maxDeviation;
-      
-      // Ensure values stay within bounds and maintain total
-      const currentSum = r + g + b;
-      const correctionFactor = totalRGB / currentSum;
-      r *= correctionFactor;
-      g *= correctionFactor;
-      b *= correctionFactor;
+      return { red: r, green: g, blue: b };
+    } catch (error) {
+      console.error('Error calculating RGB values:', error);
+      // Return a safe default value
+      return { red: 33, green: 33, blue: 33 };
     }
-    
-    return {
-      red: Math.round(r),
-      green: Math.round(g),
-      blue: Math.round(b)
-    };
   };
 
   // Handle form submission - update server and fetch updated values
