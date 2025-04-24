@@ -318,6 +318,13 @@ function App() {
         depthDarkTop: noiseValue
       }));
     }
+
+    // If average key changes, trigger a recalculation
+    if (key === 'averageKey') {
+      // Create a synthetic event for handleSubmit
+      const syntheticEvent = { preventDefault: () => {} };
+      handleSubmit(syntheticEvent);
+    }
   };
 
   // Calculate RGB values based on music parameters
@@ -395,7 +402,7 @@ function App() {
     e.preventDefault();
     
     try {
-      // Calculate new RGB values
+      // Calculate new RGB values using the current musicParams
       const newRGB = calculateRGB();
       
       // Update parameters with new RGB values
