@@ -3,13 +3,13 @@ import axios from 'axios';
 import Spline from '@splinetool/react-spline';
 
 function App() {
-  // API base URL - use production URL unless we're in development
-  // const API_BASE_URL = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1'
-  //   ? `http://${window.location.hostname}:5001`
-  //   : 'https://taste-core-music.onrender.com';
+  //API base URL - use production URL unless we're in development
+  const API_BASE_URL = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1'
+    ? `http://${window.location.hostname}:5001`
+    : 'https://taste-core-music.onrender.com';
 
-  // forcing the API to use the production URL
-  const API_BASE_URL = 'https://taste-core-music.onrender.com'
+  //forcing the API to use the production URL
+  //const API_BASE_URL = 'https://taste-core-music.onrender.com'
     
 
   // State for all parameters
