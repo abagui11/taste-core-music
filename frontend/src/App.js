@@ -4,9 +4,13 @@ import Spline from '@splinetool/react-spline';
 
 function App() {
   // API base URL - use production URL unless we're in development
-  const API_BASE_URL = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1'
-    ? `http://${window.location.hostname}:5001`
-    : 'https://taste-core-music.onrender.com';
+  // const API_BASE_URL = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1'
+  //   ? `http://${window.location.hostname}:5001`
+  //   : 'https://taste-core-music.onrender.com';
+
+  // forcing the API to use the production URL
+  const API_BASE_URL = 'https://taste-core-music.onrender.com'
+    
 
   // State for all parameters
   const [parameters, setParameters] = useState({
@@ -51,6 +55,29 @@ function App() {
 
   // Add a timestamp state for cache-busting
   const [timestamp, setTimestamp] = useState(Date.now());
+
+  // Add new state for spline error handling
+  const [splineError, setSplineError] = useState(null);
+  const [isSplineLoading, setIsSplineLoading] = useState(true);
+  const [viewerKey, setViewerKey] = useState(Date.now()); // Add a key state to force re-render
+
+  // Add useEffect to load the spline-viewer script
+  useEffect(() => {
+    const script = document.createElement('script');
+    script.type = 'module';
+    script.src = 'https://unpkg.com/@splinetool/viewer@1.9.85/build/spline-viewer.js';
+    script.onload = () => setIsSplineLoading(false);
+    script.onerror = (error) => {
+      console.error('Failed to load spline-viewer:', error);
+      setSplineError(error);
+      setIsSplineLoading(false);
+    };
+    document.head.appendChild(script);
+
+    return () => {
+      document.head.removeChild(script);
+    };
+  }, []);
 
   // Fetch initial values when component mounts
   useEffect(() => {
@@ -397,9 +424,9 @@ function App() {
       // Test the speed endpoints
       checkSpeedEndpoints();
       
-      const oldTimestamp = timestamp;
-      const newTimestamp = Date.now();
-      setTimestamp(newTimestamp);
+      // Force re-render of the viewer
+      setViewerKey(Date.now());
+      setTimestamp(Date.now());
     } catch (error) {
       console.error("Error updating values:", error);
     }
@@ -1026,11 +1053,71 @@ function App() {
       </form>
       
       {/* Spline Scene with cache-busting */}
-      <div style={{ marginTop: '50px', marginBottom: '30px', height: '575px', borderRadius: '8px', overflow: 'hidden' }}>
+      <div style={{ 
+        marginTop: '50px', 
+        marginBottom: '30px', 
+        height: 'min(575px, 80vh)', 
+        borderRadius: '8px', 
+        overflow: 'hidden',
+        position: 'relative',
+        backgroundColor: '#f5f5f5'
+      }}>
+        {isSplineLoading && (
+          <div style={{
+            position: 'absolute',
+            top: '50%',
+            left: '50%',
+            transform: 'translate(-50%, -50%)',
+            color: '#666',
+            fontSize: '16px'
+          }}>
+            Loading 3D Model...
+          </div>
+        )}
         
-        <Spline 
-          scene={`https://prod.spline.design/yLWSu17xSHhc09ZX/scene.splinecode?t=${timestamp}`} 
-          onError={() => {/* Silent error handler */}}
+        {splineError && (
+          <div style={{
+            position: 'absolute',
+            top: '50%',
+            left: '50%',
+            transform: 'translate(-50%, -50%)',
+            color: '#c62828',
+            fontSize: '16px',
+            textAlign: 'center',
+            padding: '20px'
+          }}>
+            Failed to load 3D Model. Please try refreshing the page.
+            <br />
+            <button 
+              onClick={() => {
+                setSplineError(null);
+                setIsSplineLoading(true);
+                setTimestamp(Date.now());
+                setViewerKey(Date.now());
+              }}
+              style={{
+                marginTop: '10px',
+                padding: '8px 16px',
+                backgroundColor: '#2196F3',
+                color: 'white',
+                border: 'none',
+                borderRadius: '4px',
+                cursor: 'pointer'
+              }}
+            >
+              Retry
+            </button>
+          </div>
+        )}
+        
+        <spline-viewer 
+          key={viewerKey}
+          url={`https://prod.spline.design/yLWSu17xSHhc09ZX/scene.splinecode?t=${timestamp}`}
+          style={{
+            width: '100%',
+            height: '100%',
+            display: isSplineLoading ? 'none' : 'block'
+          }}
         />
       </div>
       
